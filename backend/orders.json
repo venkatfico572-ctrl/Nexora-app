@@ -1,0 +1,27 @@
+[
+  {
+    "orderId": "NEX_1790936358048",
+    "userId": "GUEST_USER",
+    "items": [
+      {
+        "id": "PROD_2",
+        "title": "Smart Fitness Watch Series X",
+        "category": "Electronics",
+        "price": 1999,
+        "originalPrice": 3999,
+        "discount": "50% OFF",
+        "rating": 4.3,
+        "image": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500",
+        "description": "HD Display, Heart Rate Sensor, SpO2 Monitor & IP68 Waterproof.",
+        "stock": 8,
+        "qty": 1
+      }
+    ],
+    "totalAmount": 1999,
+    "deliveryAddress": "4/11 kothanellore",
+    "paymentMethod": "UPI / Instant Online Payment",
+    "status": "ORDER_PLACED",
+    "orderDate": "10/2/2026, 3:49:18 PM",
+    "estimatedDelivery": "3-5 Business Days"
+  }
+]

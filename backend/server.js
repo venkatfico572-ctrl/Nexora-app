@@ -28,3 +28,8 @@ app.listen(PORT, () => {
 const productSystem = require('./productSystem');
 app.get('/api/products', productSystem.getAllProducts);
 app.get('/api/products/:id', productSystem.getProductById);
+
+// Order System API Routes
+const orderSystem = require('./orderSystem');
+app.post('/api/orders/place', orderSystem.placeOrder);
+app.get('/api/orders/user/:userId', orderSystem.getUserOrders);
