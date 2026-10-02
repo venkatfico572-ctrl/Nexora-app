@@ -33,3 +33,9 @@ app.get('/api/products/:id', productSystem.getProductById);
 const orderSystem = require('./orderSystem');
 app.post('/api/orders/place', orderSystem.placeOrder);
 app.get('/api/orders/user/:userId', orderSystem.getUserOrders);
+
+// Admin System API Routes
+const adminSystem = require('./adminSystem');
+app.post('/api/admin/product/add', adminSystem.addProduct);
+app.get('/api/admin/orders', adminSystem.getAllOrders);
+app.post('/api/admin/order/status', adminSystem.updateOrderStatus);

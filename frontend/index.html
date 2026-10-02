@@ -12,8 +12,8 @@
     header h1 { font-size: 18px; font-weight: bold; font-style: italic; }
     .badge { background: #ff9f00; color: white; border-radius: 50%; padding: 2px 7px; font-size: 11px; margin-left: 4px; font-weight: bold; }
 
-    .top-nav { display: flex; background: #fff; border-bottom: 1px solid #ddd; }
-    .nav-btn { flex: 1; padding: 12px; text-align: center; font-weight: bold; font-size: 13px; color: #666; cursor: pointer; border-bottom: 3px solid transparent; }
+    .top-nav { display: flex; background: #fff; border-bottom: 1px solid #ddd; overflow-x: auto; }
+    .nav-btn { flex: 1; min-width: 70px; padding: 12px 8px; text-align: center; font-weight: bold; font-size: 12px; color: #666; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
     .nav-btn.active { color: #2874f0; border-bottom-color: #2874f0; }
 
     .container { max-width: 600px; margin: 15px auto; padding: 0 10px; }
@@ -44,13 +44,14 @@
 
     .hidden { display: none; }
     
-    .auth-box { background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #ddd; }
+    .auth-box { background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 15px; }
     .form-group { margin-bottom: 12px; }
     .form-group label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px; }
-    .form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+    .form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; }
 
     .order-card { background: #fff; padding: 12px; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 10px; }
     .status-badge { background: #388e3c; color: white; padding: 2px 6px; font-size: 10px; border-radius: 3px; font-weight: bold; }
+    .admin-status-select { padding: 4px; border-radius: 4px; font-size: 12px; border: 1px solid #ccc; }
   </style>
 </head>
 <body>
@@ -67,6 +68,7 @@
   <div class="nav-btn" onclick="showView('cart')">Cart</div>
   <div class="nav-btn" onclick="showView('orders')">My Orders</div>
   <div class="nav-btn" onclick="showView('account')">Account</div>
+  <div class="nav-btn" onclick="showView('admin')">Admin Panel</div>
 </div>
 
 <div class="container">
@@ -162,6 +164,38 @@
     </div>
   </div>
 
+  <!-- Admin View -->
+  <div id="adminView" class="hidden">
+    <h3 style="margin-bottom: 10px; font-size: 16px;">Admin Panel Dashboard</h3>
+
+    <!-- Add Product Form -->
+    <div class="auth-box">
+      <h4 style="margin-bottom:10px;">Add New Product</h4>
+      <div class="form-group"><label>Product Title</label><input type="text" id="admTitle" placeholder="e.g. Wireless Mouse"></div>
+      <div class="form-group"><label>Category</label>
+        <select id="admCategory">
+          <option value="Electronics">Electronics</option>
+          <option value="Fashion">Fashion</option>
+          <option value="Gadgets">Gadgets</option>
+        </select>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <div class="form-group" style="flex:1;"><label>Selling Price (₹)</label><input type="number" id="admPrice"></div>
+        <div class="form-group" style="flex:1;"><label>Original Price (₹)</label><input type="number" id="admOriginalPrice"></div>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <div class="form-group" style="flex:1;"><label>Discount Tag</label><input type="text" id="admDiscount" placeholder="e.g. 20% OFF"></div>
+        <div class="form-group" style="flex:1;"><label>Rating</label><input type="number" step="0.1" id="admRating" value="4.5"></div>
+      </div>
+      <div class="form-group"><label>Image URL</label><input type="text" id="admImage" placeholder="https://image-link.com"></div>
+      <button class="checkout-btn" style="background:#388e3c;" onclick="addNewProduct()">+ Add Product to Store</button>
+    </div>
+
+    <!-- Admin Manage Orders -->
+    <h4 style="margin: 15px 0 10px;">Manage All Customer Orders</h4>
+    <div id="adminOrdersList"></div>
+  </div>
+
 </div>
 
 <script>
@@ -175,7 +209,17 @@
     if(data.success) {
       products = data.products;
       renderProducts(products);
+      updateCategoryDropdown();
     }
+  }
+
+  function updateCategoryDropdown() {
+    const categories = ['ALL', ...new Set(products.map(p => p.category))];
+    const select = document.getElementById('categorySelect');
+    select.innerHTML = '';
+    categories.forEach(c => {
+      select.innerHTML += `<option value="${c}">${c === 'ALL' ? 'All Categories' : c}</option>`;
+    });
   }
 
   function filterProducts() {
@@ -361,6 +405,77 @@
     });
   }
 
+  // Admin Actions
+  async function addNewProduct() {
+    const title = document.getElementById('admTitle').value;
+    const category = document.getElementById('admCategory').value;
+    const price = document.getElementById('admPrice').value;
+    const originalPrice = document.getElementById('admOriginalPrice').value;
+    const discount = document.getElementById('admDiscount').value;
+    const rating = document.getElementById('admRating').value;
+    const image = document.getElementById('admImage').value;
+
+    if(!title || !price) return alert('Product Title and Price are required!');
+
+    const res = await fetch('/api/admin/product/add', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, category, price, originalPrice, discount, rating, image })
+    });
+    const data = await res.json();
+
+    if(data.success) {
+      alert('✅ Product Added Successfully!');
+      loadProducts();
+      showView('shop');
+    } else {
+      alert('Failed: ' + data.message);
+    }
+  }
+
+  async function loadAdminOrders() {
+    const res = await fetch('/api/admin/orders');
+    const data = await res.json();
+    const list = document.getElementById('adminOrdersList');
+    list.innerHTML = '';
+
+    if(!data.orders || data.orders.length === 0) {
+      list.innerHTML = '<p style="text-align:center; color:#878787; margin-top:20px;">No customer orders found.</p>';
+      return;
+    }
+
+    data.orders.reverse().forEach(o => {
+      list.innerHTML += `
+        <div class="order-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+            <span style="font-weight:bold; font-size:13px;">ID: ${o.orderId}</span>
+            <select class="admin-status-select" onchange="updateStatus('${o.orderId}', this.value)">
+              <option value="ORDER_PLACED" ${o.status === 'ORDER_PLACED' ? 'selected' : ''}>ORDER_PLACED</option>
+              <option value="PACKED" ${o.status === 'PACKED' ? 'selected' : ''}>PACKED</option>
+              <option value="SHIPPED" ${o.status === 'SHIPPED' ? 'selected' : ''}>SHIPPED</option>
+              <option value="DELIVERED" ${o.status === 'DELIVERED' ? 'selected' : ''}>DELIVERED</option>
+            </select>
+          </div>
+          <div style="font-size:12px; color:#666;">Customer ID: ${o.userId}</div>
+          <div style="font-size:12px; color:#666;">Address: ${o.deliveryAddress}</div>
+          <div style="font-size:13px; font-weight:bold; margin-top:4px;">Total Amount: ₹${o.totalAmount} (${o.paymentMethod})</div>
+        </div>
+      `;
+    });
+  }
+
+  async function updateStatus(orderId, status) {
+    const res = await fetch('/api/admin/order/status', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderId, status })
+    });
+    const data = await res.json();
+    if(data.success) {
+      alert('Order status updated to: ' + status);
+    }
+  }
+
   function showView(view) {
     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
     document.getElementById('shopView').classList.add('hidden');
@@ -368,6 +483,7 @@
     document.getElementById('checkoutView').classList.add('hidden');
     document.getElementById('ordersView').classList.add('hidden');
     document.getElementById('accountView').classList.add('hidden');
+    document.getElementById('adminView').classList.add('hidden');
 
     if(view === 'shop') {
       document.querySelectorAll('.nav-btn')[0].classList.add('active');
@@ -381,9 +497,13 @@
       document.querySelectorAll('.nav-btn')[2].classList.add('active');
       document.getElementById('ordersView').classList.remove('hidden');
       loadUserOrders();
-    } else {
+    } else if(view === 'account') {
       document.querySelectorAll('.nav-btn')[3].classList.add('active');
       document.getElementById('accountView').classList.remove('hidden');
+    } else if(view === 'admin') {
+      document.querySelectorAll('.nav-btn')[4].classList.add('active');
+      document.getElementById('adminView').classList.remove('hidden');
+      loadAdminOrders();
     }
   }
 

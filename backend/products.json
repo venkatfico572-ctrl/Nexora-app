@@ -34,5 +34,15 @@
     "image": "https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=500",
     "description": "Premium cotton fabric classic stylish denim jacket for everyday comfort.",
     "stock": 20
+  },
+  {
+    "id": "p4_1790937167462",
+    "title": "Watch",
+    "price": 350,
+    "originalPrice": 550,
+    "discount": "10",
+    "rating": 4.5,
+    "image": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500",
+    "category": "Electronics"
   }
 ]
