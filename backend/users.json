@@ -1,0 +1,21 @@
+[
+  {
+    "id": "USR_1790933344083",
+    "name": "Venkat",
+    "email": "venkatfico572@gmail.com",
+    "password": "Venkat@145",
+    "phone": "8639496323",
+    "addresses": [
+      {
+        "street": "4/11 kotthanellore",
+        "city": "Kadapa",
+        "state": "Andhra pradesh",
+        "pincode": "516163",
+        "type": "Ramalayam near ",
+        "id": "ADDR_1790933376853"
+      }
+    ],
+    "walletBalance": 0,
+    "createdAt": "2026-10-02T09:29:04.084Z"
+  }
+]
