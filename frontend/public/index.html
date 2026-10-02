@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="te">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nexora - Smart AR Store</title>
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #0b0c10;
+      color: #ffffff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 80px;
+    }
+    header {
+      width: 100%;
+      max-width: 450px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    h1 { color: #66fcf1; font-size: 1.8rem; letter-spacing: 2px; }
+    .cart-btn {
+      background: #1f2833;
+      border: 1px solid #66fcf1;
+      color: #66fcf1;
+      padding: 8px 15px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    #product-list {
+      width: 100%;
+      max-width: 450px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .ar-card {
+      background: #1f2833;
+      border: 1px solid #45a29e;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+    model-viewer {
+      width: 100%;
+      height: 280px;
+      background-color: #151a21;
+    }
+    .details { padding: 15px; }
+    .category { font-size: 0.75rem; color: #45a29e; text-transform: uppercase; font-weight: bold; }
+    .title { font-size: 1.1rem; font-weight: bold; margin: 4px 0; color: #ffffff; }
+    .price { color: #66fcf1; font-size: 1.2rem; font-weight: bold; margin-bottom: 12px; }
+    .actions { display: flex; gap: 10px; }
+    .btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .btn-ar { background: #45a29e; color: #0b0c10; }
+    .btn-buy { background: #66fcf1; color: #0b0c10; }
+    
+    /* Cart Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: #1f2833;
+      border-top: 2px solid #66fcf1;
+      padding: 20px;
+      box-shadow: 0 -5px 25px rgba(0,0,0,0.8);
+      max-width: 480px;
+      margin: 0 auto;
+      border-radius: 20px 20px 0 0;
+      z-index: 10;
+    }
+    .modal-header { display: flex; justify-content: space-between; margin-bottom: 15px; }
+    .pay-btn {
+      width: 100%;
+      background: #66fcf1;
+      color: #0b0c10;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      margin-top: 15px;
+      cursor: pointer;
+    }
+    select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      background: #0b0c10;
+      color: #66fcf1;
+      border: 1px solid #45a29e;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>NEXORA</h1>
+    <button class="cart-btn" onclick="toggleCart()">🛒 Cart (<span id="cart-count">0</span>)</button>
+  </header>
+
+  <div id="product-list"></div>
+
+  <!-- Cart Modal -->
+  <div class="modal" id="cart-modal">
+    <div class="modal-header">
+      <h3>Shopping Cart</h3>
+      <button onclick="toggleCart()" style="background:none; border:none; color:#fff; font-size:1.2rem; cursor:pointer;">✕</button>
+    </div>
+    <div id="cart-items">Empty Cart</div>
+    <div style="margin-top: 10px; font-weight: bold; color: #66fcf1;">
+      Total: ₹<span id="cart-total">0</span>
+    </div>
+
+    <label style="font-size:0.85rem; color:#c5c6c7; margin-top:10px; display:block;">Payment Method:</label>
+    <select id="payment-method">
+      <option value="UPI (GPay / PhonePe)">UPI (GPay / PhonePe)</option>
+      <option value="Credit / Debit Card">Credit / Debit Card</option>
+      <option value="Net Banking">Net Banking</option>
+    </select>
+
+    <button class="pay-btn" onclick="processPayment()">Proceed to Pay ⚡</button>
+  </div>
+
+  <script>
+    let cart = [];
+
+    async function fetchProducts() {
+      const res = await fetch('/api/products');
+      const result = await res.json();
+      const container = document.getElementById('product-list');
+      container.innerHTML = '';
+
+      if (result.success) {
+        result.data.forEach((prod, index) => {
+          const card = document.createElement('div');
+          card.className = 'ar-card';
+          card.innerHTML = `
+            <model-viewer id="mv-${index}" src="${prod.modelUrl}" ar camera-controls auto-rotate></model-viewer>
+            <div class="details">
+              <span class="category">${prod.category}</span>
+              <div class="title">${prod.name}</div>
+              <div class="price">₹${prod.price.toLocaleString('en-IN')}</div>
+              <div class="actions">
+                <button class="btn btn-ar" onclick="triggerAR('mv-${index}')">3D Try-On</button>
+                <button class="btn btn-buy" onclick="addToCart('${prod.name}', ${prod.price})">Add to Cart</button>
+              </div>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      }
+    }
+
+    function triggerAR(id) {
+      const viewer = document.getElementById(id);
+      if (viewer && viewer.canActivateAR) viewer.activateAR();
+      else alert('AR mode supported on mobile browsers with camera access.');
+    }
+
+    function addToCart(name, price) {
+      cart.push({ name, price });
+      updateCartUI();
+      alert(`${name} added to Cart!`);
+    }
+
+    function updateCartUI() {
+      document.getElementById('cart-count').innerText = cart.length;
+      const total = cart.reduce((sum, item) => sum + item.price, 0);
+      document.getElementById('cart-total').innerText = total.toLocaleString('en-IN');
+      
+      const itemsContainer = document.getElementById('cart-items');
+      if (cart.length === 0) {
+        itemsContainer.innerText = 'Empty Cart';
+      } else {
+        itemsContainer.innerHTML = cart.map(i => `<div>• ${i.name} - ₹${i.price}</div>`).join('');
+      }
+    }
+
+    function toggleCart() {
+      const modal = document.getElementById('cart-modal');
+      modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
+    }
+
+    async function processPayment() {
+      if (cart.length === 0) return alert('Cart is empty!');
+      const totalAmount = cart.reduce((sum, item) => sum + item.price, 0);
+      const paymentMethod = document.getElementById('payment-method').value;
+      
+      const res = await fetch('/api/pay', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cartItems: cart, totalAmount, paymentMethod })
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        alert(`🎉 PAYMENT SUCCESSFUL!\n\nOrder ID: ${data.orderId}\nTxn ID: ${data.txnId}\nTotal Paid: ₹${data.totalAmount}\nMethod: ${paymentMethod}`);
+        cart = [];
+        updateCartUI();
+        toggleCart();
+      }
+    }
+
+    fetchProducts();
+  </script>
+</body>
+</html>

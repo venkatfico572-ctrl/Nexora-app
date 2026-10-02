@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="te">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nexora - Admin Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #0b0c10;
+      color: #ffffff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 20px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #45a29e; padding-bottom: 10px; }
+    h1 { color: #66fcf1; font-size: 1.5rem; }
+    .store-link { color: #45a29e; text-decoration: none; font-weight: bold; }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+    .stat-card {
+      background: #1f2833;
+      border: 1px solid #45a29e;
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+    }
+    .stat-value { color: #66fcf1; font-size: 1.2rem; font-weight: bold; margin-top: 5px; }
+    .stat-label { font-size: 0.75rem; color: #c5c6c7; }
+
+    .card {
+      background: #1f2833;
+      border: 1px solid #45a29e;
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    .card h2 { color: #66fcf1; font-size: 1.1rem; margin-bottom: 12px; }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #0b0c10;
+      color: #ffffff;
+      border: 1px solid #45a29e;
+      border-radius: 6px;
+    }
+    button {
+      width: 100%;
+      background: #66fcf1;
+      color: #0b0c10;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .order-item {
+      background: #0b0c10;
+      padding: 8px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>NEXORA ADMIN</h1>
+    <a href="/" class="store-link">← Go to Store</a>
+  </header>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Products</div>
+      <div class="stat-value" id="total-products">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Orders</div>
+      <div class="stat-value" id="total-orders">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Revenue</div>
+      <div class="stat-value" id="total-revenue">₹0</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>➕ Add New 3D Product</h2>
+    <input type="text" id="p-name" placeholder="Product Name">
+    <input type="number" id="p-price" placeholder="Price (₹)">
+    <input type="text" id="p-category" placeholder="Category (e.g. Wearables)">
+    <input type="text" id="p-url" placeholder="GLB 3D Model URL">
+    <button onclick="addProduct()">Add Product to Store</button>
+  </div>
+
+  <div class="card">
+    <h2>📦 Recent Orders</h2>
+    <div id="orders-list">No orders yet.</div>
+  </div>
+
+  <script>
+    async function loadAdminStats() {
+      const res = await fetch('/api/admin/stats');
+      const data = await res.json();
+
+      if (data.success) {
+        document.getElementById('total-products').innerText = data.totalProducts;
+        document.getElementById('total-orders').innerText = data.totalOrders;
+        document.getElementById('total-revenue').innerText = '₹' + data.totalRevenue.toLocaleString('en-IN');
+
+        const ordersContainer = document.getElementById('orders-list');
+        if (data.recentOrders.length === 0) {
+          ordersContainer.innerHTML = 'No orders placed yet.';
+        } else {
+          ordersContainer.innerHTML = data.recentOrders.map(o => `
+            <div class="order-item">
+              <strong style="color:#66fcf1;">${o.orderId}</strong> - ₹${o.totalAmount} (${o.paymentMethod})<br>
+              <span style="color:#888;">${o.date}</span>
+            </div>
+          `).join('');
+        }
+      }
+    }
+
+    async function addProduct() {
+      const name = document.getElementById('p-name').value;
+      const price = document.getElementById('p-price').value;
+      const category = document.getElementById('p-category').value;
+      const modelUrl = document.getElementById('p-url').value;
+
+      if (!name || !price || !category || !modelUrl) return alert('Please fill all fields!');
+
+      const res = await fetch('/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, price, category, modelUrl })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        alert('Product Added Successfully!');
+        document.getElementById('p-name').value = '';
+        document.getElementById('p-price').value = '';
+        document.getElementById('p-category').value = '';
+        document.getElementById('p-url').value = '';
+        loadAdminStats();
+      }
+    }
+
+    loadAdminStats();
+  </script>
+</body>
+</html>
