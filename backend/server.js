@@ -23,3 +23,8 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+// Product System API Routes
+const productSystem = require('./productSystem');
+app.get('/api/products', productSystem.getAllProducts);
+app.get('/api/products/:id', productSystem.getProductById);

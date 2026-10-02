@@ -3,202 +3,252 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nexora - Account Management</title>
+  <title>Nexora - Flipkart & Amazon Grade Store</title>
   <style>
     * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; }
-    body { background: #f1f3f6; padding: 15px; color: #212121; }
-    .container { max-width: 500px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-    h2 { color: #2874f0; margin-bottom: 15px; text-align: center; font-size: 20px; }
-    .nav-tabs { display: flex; border-bottom: 2px solid #e0e0e0; margin-bottom: 20px; }
-    .tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; font-weight: bold; color: #878787; }
-    .tab.active { color: #2874f0; border-bottom: 3px solid #2874f0; }
-    .form-group { margin-bottom: 15px; }
-    label { display: block; margin-bottom: 5px; font-size: 13px; font-weight: bold; color: #666; }
-    input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
-    button { width: 100%; padding: 12px; background: #fb641b; border: none; color: white; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; }
-    button:hover { background: #e65100; }
+    body { background: #f1f3f6; color: #212121; padding-bottom: 60px; }
+    
+    /* Header */
+    header { background: #2874f0; color: white; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    header h1 { font-size: 18px; font-weight: bold; font-style: italic; }
+    .badge { background: #ff9f00; color: white; border-radius: 50%; padding: 2px 7px; font-size: 11px; margin-left: 4px; font-weight: bold; }
+
+    /* Navigation Bar */
+    .top-nav { display: flex; background: #fff; border-bottom: 1px solid #ddd; }
+    .nav-btn { flex: 1; padding: 12px; text-align: center; font-weight: bold; font-size: 14px; color: #666; cursor: pointer; border-bottom: 3px solid transparent; }
+    .nav-btn.active { color: #2874f0; border-bottom-color: #2874f0; }
+
+    .container { max-width: 600px; margin: 15px auto; padding: 0 10px; }
+    
+    /* Product Grid */
+    .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .product-card { background: #fff; border-radius: 6px; padding: 10px; border: 1px solid #e0e0e0; display: flex; flex-direction: column; justify-content: space-between; }
+    .product-card img { width: 100%; height: 140px; object-fit: contain; border-radius: 4px; }
+    .product-title { font-size: 13px; font-weight: bold; margin: 8px 0 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .price-box { font-size: 14px; font-weight: bold; margin-bottom: 6px; }
+    .price-box .original { text-decoration: line-through; color: #878787; font-weight: normal; font-size: 12px; margin-left: 4px; }
+    .price-box .discount { color: #388e3c; font-size: 11px; margin-left: 4px; }
+    .rating-tag { background: #388e3c; color: white; font-size: 10px; padding: 2px 5px; border-radius: 3px; font-weight: bold; display: inline-block; margin-bottom: 6px; }
+    
+    .btn-add { width: 100%; padding: 8px; background: #ff9f00; border: none; color: white; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 12px; }
+    .btn-add:hover { background: #e68a00; }
+
+    /* Cart & Account Styles */
+    .cart-item { background: #fff; border: 1px solid #ddd; padding: 10px; border-radius: 6px; margin-bottom: 10px; display: flex; gap: 10px; align-items: center; }
+    .cart-item img { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; }
+    .cart-details { flex: 1; }
+    .qty-btn { background: #eee; border: 1px solid #ccc; width: 24px; height: 24px; font-weight: bold; cursor: pointer; }
+    .summary-card { background: #fff; padding: 15px; border-radius: 6px; border: 1px solid #ddd; margin-top: 15px; }
+    .checkout-btn { width: 100%; padding: 12px; background: #fb641b; color: white; border: none; font-size: 16px; font-weight: bold; border-radius: 4px; margin-top: 10px; cursor: pointer; }
+
     .hidden { display: none; }
-    .profile-card { background: #f8f9fa; padding: 15px; border-radius: 6px; border: 1px solid #e0e0e0; margin-top: 15px; }
-    .address-box { border: 1px solid #ddd; padding: 10px; border-radius: 4px; margin-top: 10px; background: #fff; }
-    .tag { background: #2874f0; color: white; font-size: 10px; padding: 2px 6px; border-radius: 3px; font-weight: bold; }
+    
+    /* Auth Form */
+    .auth-box { background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #ddd; }
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px; }
+    .form-group input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
   </style>
 </head>
 <body>
 
+<header>
+  <h1>Nexora Store</h1>
+  <div>
+    <span>Cart</span><span id="cartBadge" class="badge">0</span>
+  </div>
+</header>
+
+<div class="top-nav">
+  <div class="nav-btn active" onclick="showView('shop')">Shop Products</div>
+  <div class="nav-btn" onclick="showView('cart')">Cart</div>
+  <div class="nav-btn" onclick="showView('account')">Account</div>
+</div>
+
 <div class="container">
-  <h2>Nexora Shopping</h2>
 
-  <!-- Auth Tabs -->
-  <div id="authTabs" class="nav-tabs">
-    <div class="tab active" onclick="switchTab('login')">Login</div>
-    <div class="tab" onclick="switchTab('register')">Register</div>
+  <!-- Shop View -->
+  <div id="shopView">
+    <h3 style="margin-bottom: 10px; font-size: 16px;">Trending Products</h3>
+    <div id="productGrid" class="product-grid"></div>
   </div>
 
-  <!-- Login Form -->
-  <form id="loginForm" onsubmit="handleLogin(event)">
-    <div class="form-group">
-      <label>Email Address</label>
-      <input type="email" id="loginEmail" required placeholder="enter email">
+  <!-- Cart View -->
+  <div id="cartView" class="hidden">
+    <h3 style="margin-bottom: 10px; font-size: 16px;">Shopping Cart</h3>
+    <div id="cartList"></div>
+    <div id="cartSummary" class="summary-card hidden">
+      <h4>Price Details</h4>
+      <hr style="margin: 8px 0; border: 0; border-top: 1px solid #eee;">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px;">
+        <span>Total Price</span><span id="totalPrice">₹0</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px; color: #388e3c;">
+        <span>Delivery Charges</span><span>FREE</span>
+      </div>
+      <hr style="margin: 8px 0; border: 0; border-top: 1px solid #eee;">
+      <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 16px;">
+        <span>Amount Payable</span><span id="finalPrice">₹0</span>
+      </div>
+      <button class="checkout-btn" onclick="alert('Checkout process initiated!')">Proceed to Buy</button>
     </div>
-    <div class="form-group">
-      <label>Password</label>
-      <input type="password" id="loginPassword" required placeholder="enter password">
-    </div>
-    <button type="submit">Login to Account</button>
-  </form>
-
-  <!-- Register Form -->
-  <form id="registerForm" class="hidden" onsubmit="handleRegister(event)">
-    <div class="form-group">
-      <label>Full Name</label>
-      <input type="text" id="regName" required placeholder="Name">
-    </div>
-    <div class="form-group">
-      <label>Email Address</label>
-      <input type="email" id="regEmail" required placeholder="Email">
-    </div>
-    <div class="form-group">
-      <label>Phone Number</label>
-      <input type="tel" id="regPhone" required placeholder="Phone number">
-    </div>
-    <div class="form-group">
-      <label>Password</label>
-      <input type="password" id="regPassword" required placeholder="Password">
-    </div>
-    <button type="submit">Create Account</button>
-  </form>
-
-  <!-- Profile Section (Hidden by Default) -->
-  <div id="profileSection" class="hidden">
-    <div class="profile-card">
-      <h3 id="userName">User Name</h3>
-      <p id="userEmail" style="color: #666; font-size: 14px;"></p>
-      <p id="userPhone" style="color: #666; font-size: 14px;"></p>
-    </div>
-
-    <h4 style="margin-top: 20px;">Saved Delivery Addresses</h4>
-    <div id="addressList"></div>
-
-    <h4 style="margin-top: 20px;">Add New Delivery Address</h4>
-    <form id="addressForm" onsubmit="handleAddAddress(event)" style="margin-top: 10px;">
-      <div class="form-group"><input type="text" id="addrStreet" placeholder="House No, Street, Area" required></div>
-      <div class="form-group"><input type="text" id="addrCity" placeholder="City" required></div>
-      <div class="form-group"><input type="text" id="addrState" placeholder="State" required></div>
-      <div class="form-group"><input type="text" id="addrPincode" placeholder="Pincode" required></div>
-      <div class="form-group"><input type="text" id="addrType" placeholder="Address Type (Home / Work)" required></div>
-      <button type="submit" style="background: #2874f0;">Save Address</button>
-    </form>
   </div>
+
+  <!-- Account View -->
+  <div id="accountView" class="hidden">
+    <div id="authBox" class="auth-box">
+      <h3>Login / Register</h3>
+      <div class="form-group" style="margin-top:10px;"><label>Email</label><input type="email" id="accEmail"></div>
+      <div class="form-group"><label>Password</label><input type="password" id="accPassword"></div>
+      <button class="checkout-btn" style="background:#2874f0;" onclick="loginUser()">Login</button>
+    </div>
+    
+    <div id="profileBox" class="auth-box hidden">
+      <h3 id="profName">User Profile</h3>
+      <p id="profEmail" style="color:#666; font-size:14px;"></p>
+      <p id="profPhone" style="color:#666; font-size:14px;"></p>
+    </div>
+  </div>
+
 </div>
 
 <script>
+  let products = [];
+  let cart = [];
   let currentUser = null;
 
-  function switchTab(tab) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    if(tab === 'login') {
-      document.querySelectorAll('.tab')[0].classList.add('active');
-      document.getElementById('loginForm').classList.remove('hidden');
-      document.getElementById('registerForm').classList.add('hidden');
-    } else {
-      document.querySelectorAll('.tab')[1].classList.add('active');
-      document.getElementById('loginForm').classList.add('hidden');
-      document.getElementById('registerForm').classList.remove('hidden');
+  async function loadProducts() {
+    const res = await fetch('/api/products');
+    const data = await res.json();
+    if(data.success) {
+      products = data.products;
+      renderProducts();
     }
   }
 
-  async function handleRegister(e) {
-    e.preventDefault();
-    const data = {
-      name: document.getElementById('regName').value,
-      email: document.getElementById('regEmail').value,
-      phone: document.getElementById('regPhone').value,
-      password: document.getElementById('regPassword').value
-    };
-    const res = await fetch('/api/user/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-    const result = await res.json();
-    alert(result.message);
-    if(result.success) {
-      currentUser = result.user;
-      showProfile();
-    }
-  }
-
-  async function handleLogin(e) {
-    e.preventDefault();
-    const data = {
-      email: document.getElementById('loginEmail').value,
-      password: document.getElementById('loginPassword').value
-    };
-    const res = await fetch('/api/user/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-    const result = await res.json();
-    alert(result.message);
-    if(result.success) {
-      currentUser = result.user;
-      showProfile();
-    }
-  }
-
-  async function handleAddAddress(e) {
-    e.preventDefault();
-    const address = {
-      street: document.getElementById('addrStreet').value,
-      city: document.getElementById('addrCity').value,
-      state: document.getElementById('addrState').value,
-      pincode: document.getElementById('addrPincode').value,
-      type: document.getElementById('addrType').value
-    };
-    const res = await fetch('/api/user/address', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: currentUser.id, address })
-    });
-    const result = await res.json();
-    alert(result.message);
-    if(result.success) {
-      currentUser.addresses = result.addresses;
-      renderAddresses();
-      document.getElementById('addressForm').reset();
-    }
-  }
-
-  function showProfile() {
-    document.getElementById('authTabs').classList.add('hidden');
-    document.getElementById('loginForm').classList.add('hidden');
-    document.getElementById('registerForm').classList.add('hidden');
-    document.getElementById('profileSection').classList.remove('hidden');
-
-    document.getElementById('userName').innerText = currentUser.name;
-    document.getElementById('userEmail').innerText = 'Email: ' + currentUser.email;
-    document.getElementById('userPhone').innerText = 'Phone: ' + currentUser.phone;
-    renderAddresses();
-  }
-
-  function renderAddresses() {
-    const list = document.getElementById('addressList');
-    list.innerHTML = '';
-    if(currentUser.addresses.length === 0) {
-      list.innerHTML = '<p style="color:#999; font-size:13px;">No saved addresses yet.</p>';
-      return;
-    }
-    currentUser.addresses.forEach(a => {
-      list.innerHTML += `
-        <div class="address-box">
-          <span class="tag">${a.type.toUpperCase()}</span>
-          <p style="font-size:14px; font-weight:bold; margin-top:5px;">${a.street}</p>
-          <p style="font-size:12px; color:#666;">${a.city}, ${a.state} - ${a.pincode}</p>
+  function renderProducts() {
+    const grid = document.getElementById('productGrid');
+    grid.innerHTML = '';
+    products.forEach(p => {
+      grid.innerHTML += `
+        <div class="product-card">
+          <img src="${p.image}" alt="${p.title}">
+          <div class="product-title">${p.title}</div>
+          <div><span class="rating-tag">★ ${p.rating}</span></div>
+          <div class="price-box">
+            ₹${p.price} <span class="original">₹${p.originalPrice}</span> <span class="discount">${p.discount}</span>
+          </div>
+          <button class="btn-add" onclick="addToCart('${p.id}')">ADD TO CART</button>
         </div>
       `;
     });
   }
+
+  function addToCart(productId) {
+    const product = products.find(p => p.id === productId);
+    const existing = cart.find(item => item.id === productId);
+
+    if(existing) {
+      existing.qty++;
+    } else {
+      cart.push({ ...product, qty: 1 });
+    }
+    updateCartUI();
+    alert(product.title + ' added to Cart!');
+  }
+
+  function updateQty(productId, change) {
+    const item = cart.find(i => i.id === productId);
+    if(item) {
+      item.qty += change;
+      if(item.qty <= 0) {
+        cart = cart.filter(i => i.id !== productId);
+      }
+    }
+    updateCartUI();
+  }
+
+  function updateCartUI() {
+    const cartList = document.getElementById('cartList');
+    const cartSummary = document.getElementById('cartSummary');
+    const cartBadge = document.getElementById('cartBadge');
+    
+    let totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+    let totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    
+    cartBadge.innerText = totalQty;
+
+    if(cart.length === 0) {
+      cartList.innerHTML = '<p style="text-align:center; color:#878787; margin-top:20px;">Your Cart is Empty!</p>';
+      cartSummary.classList.add('hidden');
+      return;
+    }
+
+    cartSummary.classList.remove('hidden');
+    cartList.innerHTML = '';
+    
+    cart.forEach(item => {
+      cartList.innerHTML += `
+        <div class="cart-item">
+          <img src="${item.image}">
+          <div class="cart-details">
+            <div style="font-weight:bold; font-size:13px;">${item.title}</div>
+            <div style="font-size:13px; font-weight:bold; margin: 4px 0;">₹${item.price}</div>
+            <div>
+              <button class="qty-btn" onclick="updateQty('${item.id}', -1)">-</button>
+              <span style="margin: 0 8px; font-weight:bold;">${item.qty}</span>
+              <button class="qty-btn" onclick="updateQty('${item.id}', 1)">+</button>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+
+    document.getElementById('totalPrice').innerText = '₹' + totalPrice;
+    document.getElementById('finalPrice').innerText = '₹' + totalPrice;
+  }
+
+  function showView(view) {
+    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById('shopView').classList.add('hidden');
+    document.getElementById('cartView').classList.add('hidden');
+    document.getElementById('accountView').classList.add('hidden');
+
+    if(view === 'shop') {
+      document.querySelectorAll('.nav-btn')[0].classList.add('active');
+      document.getElementById('shopView').classList.remove('hidden');
+    } else if(view === 'cart') {
+      document.querySelectorAll('.nav-btn')[1].classList.add('active');
+      document.getElementById('cartView').classList.remove('hidden');
+    } else {
+      document.querySelectorAll('.nav-btn')[2].classList.add('active');
+      document.getElementById('accountView').classList.remove('hidden');
+    }
+  }
+
+  async function loginUser() {
+    const email = document.getElementById('accEmail').value;
+    const password = document.getElementById('accPassword').value;
+
+    const res = await fetch('/api/user/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const result = await res.json();
+    alert(result.message);
+    if(result.success) {
+      currentUser = result.user;
+      document.getElementById('authBox').classList.add('hidden');
+      document.getElementById('profileBox').classList.remove('hidden');
+      document.getElementById('profName').innerText = currentUser.name;
+      document.getElementById('profEmail').innerText = 'Email: ' + currentUser.email;
+      document.getElementById('profPhone').innerText = 'Phone: ' + currentUser.phone;
+    }
+  }
+
+  // Initial Load
+  loadProducts();
 </script>
 </body>
 </html>
